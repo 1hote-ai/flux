@@ -1,0 +1,63 @@
+.memberList {
+  width: 240px;
+  background-color: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 16px 8px;
+  border-left: 1px solid var(--divider);
+}
+
+.categoryTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 8px 8px 16px 8px;
+  letter-spacing: 0.02em;
+}
+
+.members {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.memberItem {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  gap: 12px;
+  transition: background-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.memberItem:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.memberInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.ownerIcon {
+  color: #f0b232;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
