@@ -25,8 +25,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({ channelId, type }) =
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (text.trim()) {
-      sendMessage(channelId, currentUser.id, currentUser.name, currentUser.avatar, text.trim());
-      setText('');
+      if (currentUser) {
+        sendMessage(channelId, text.trim());
+        setText('');
+      }
     }
   };
 

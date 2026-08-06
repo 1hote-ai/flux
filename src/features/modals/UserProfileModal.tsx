@@ -9,6 +9,8 @@ export const UserProfileModal: React.FC = () => {
   const { isProfileOpen, setProfileOpen } = useUIStore();
   const { currentUser } = useDataStore();
 
+  if (!isProfileOpen || !currentUser) return null;
+
   return (
     <Modal isOpen={isProfileOpen} onClose={() => setProfileOpen(false)} className={styles.profileModal}>
       <div className={styles.banner}>
@@ -19,7 +21,7 @@ export const UserProfileModal: React.FC = () => {
       <div className={styles.body}>
         <div className={styles.header}>
           <h2 className={styles.username}>{currentUser.name}</h2>
-          <span className={styles.tag}>{currentUser.tag}</span>
+          <span className={styles.tag}>{currentUser.tag || `@${currentUser.username}`}</span>
         </div>
         
         <div className={styles.divider} />

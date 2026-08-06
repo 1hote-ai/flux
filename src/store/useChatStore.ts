@@ -1,115 +1,95 @@
 import { create } from 'zustand';
+import { io, Socket } from 'socket.io-client';
+import type { Message, Dialog } from '../types';
 
-export interface Message {
-  id: string;
-  channelId: string;
-  authorId: string;
-  authorName: string;
-  authorAvatar?: string;
-  content: string;
-  timestamp: string;
-  isEdited?: boolean;
-}
-
-export interface Dialog {
-  id: string;
-  name: string;
-  avatar?: string;
-  status: 'online' | 'idle' | 'dnd' | 'offline';
-  lastMessageAt: string;
-  unreadCount: number;
-}
 
 interface ChatState {
-  messages: Record<string, Message[]>; // channelId or dialogId -> Message[]
+  messages: Record<string, Message[]>;
   dialogs: Dialog[];
   activeDialogId: string | null;
-  isLoadingHistory: Record<string, boolean>; // channelId -> loading state
+  isLoadingHistory: Record<string, boolean>;
+  socket: Socket | null;
+  isConnected: boolean;
 
-  sendMessage: (channelId: string, authorId: string, authorName: string, authorAvatar: string | undefined, content: string) => void;
+  initSocket: () => void;
+  disconnectSocket: () => void;
+  sendMessage: (channelId: string, content: string) => void;
   deleteMessage: (messageId: string, channelId: string) => void;
   setActiveDialog: (dialogId: string | null) => void;
   markAsRead: (dialogId: string) => void;
   loadHistory: (channelId: string) => Promise<void>;
+  joinChannel: (channelId: string) => void;
+  leaveChannel: (channelId: string) => void;
+  addMessage: (message: Message) => void;
 }
 
-// Mock initial data
-const mockDialogs: Dialog[] = [
-  {
-    id: 'd1',
-    name: 'Alex Developer',
-    avatar: 'https://api.dicebear.com/7.x/identicon/svg?seed=Alex',
-    status: 'online',
-    lastMessageAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-    unreadCount: 2,
-  },
-  {
-    id: 'd2',
-    name: 'UI/UX Designer',
-    avatar: 'https://api.dicebear.com/7.x/identicon/svg?seed=Designer',
-    status: 'idle',
-    lastMessageAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-    unreadCount: 0,
-  }
-];
-
-const mockMessages: Record<string, Message[]> = {
-  'd1': [
-    {
-      id: 'm1',
-      channelId: 'd1',
-      authorId: 'u2',
-      authorName: 'Alex Developer',
-      authorAvatar: 'https://api.dicebear.com/7.x/identicon/svg?seed=Alex',
-      content: 'Привет! Как продвигается дизайн чата?',
-      timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
-    },
-    {
-      id: 'm2',
-      channelId: 'd1',
-      authorId: 'u1',
-      authorName: 'Username',
-      authorAvatar: undefined,
-      content: 'Привет! Работаю над списком сообщений и анимациями.',
-      timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-    }
-  ],
-  'c1': [
-    {
-      id: 'm3',
-      channelId: 'c1',
-      authorId: 'u2',
-      authorName: 'Alex Developer',
-      authorAvatar: 'https://api.dicebear.com/7.x/identicon/svg?seed=Alex',
-      content: 'Добро пожаловать в общий канал!',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    }
-  ]
-};
-
 export const useChatStore = create<ChatState>((set, get) => ({
-  messages: mockMessages,
-  dialogs: mockDialogs,
+  messages: {},
+  dialogs: [],
   activeDialogId: null,
   isLoadingHistory: {},
+  socket: null,
+  isConnected: false,
 
-  sendMessage: (channelId, authorId, authorName, authorAvatar, content) => {
-    const newMessage: Message = {
-      id: `m_${Date.now()}`,
-      channelId,
-      authorId,
-      authorName,
-      authorAvatar,
-      content,
-      timestamp: new Date().toISOString(),
-    };
+  initSocket: () => {
+    if (get().socket) return;
+    const token = localStorage.getItem('flux_token');
+    if (!token) return;
 
-    set((state) => ({
-      messages: {
-        ...state.messages,
-        [channelId]: [...(state.messages[channelId] || []), newMessage]
-      }
-    }));
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
+    
+    const socket = io(wsUrl, {
+      auth: { token },
+      transports: ['websocket'],
+    });
+
+    socket.on('connect', () => set({ isConnected: true }));
+    socket.on('disconnect', () => set({ isConnected: false }));
+
+    socket.on('receive_message', (message: Message) => {
+      get().addMessage(message);
+    });
+
+    set({ socket });
+  },
+
+  disconnectSocket: () => {
+    const { socket } = get();
+    if (socket) {
+      socket.disconnect();
+      set({ socket: null, isConnected: false });
+    }
+  },
+
+  addMessage: (message: Message) => {
+    set((state) => {
+      const channelMessages = state.messages[message.channelId] || [];
+      if (channelMessages.some(m => m.id === message.id)) return state;
+      
+      return {
+        messages: {
+          ...state.messages,
+          [message.channelId]: [...channelMessages, message]
+        }
+      };
+    });
+  },
+
+  sendMessage: (channelId, content) => {
+    const { socket } = get();
+    if (socket && socket.connected) {
+      socket.emit('send_message', { channelId, content });
+    }
+  },
+
+  joinChannel: (channelId: string) => {
+    const { socket } = get();
+    if (socket && socket.connected) socket.emit('join_channel', channelId);
+  },
+
+  leaveChannel: (channelId: string) => {
+    const { socket } = get();
+    if (socket && socket.connected) socket.emit('leave_channel', channelId);
   },
 
   deleteMessage: (messageId, channelId) => {
@@ -137,32 +117,29 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   loadHistory: async (channelId) => {
-    // Prevent multiple loads
     if (get().isLoadingHistory[channelId]) return;
 
     set((state) => ({
       isLoadingHistory: { ...state.isLoadingHistory, [channelId]: true }
     }));
 
-    // Fake delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+    try {
+      // Имитация до реализации API эндпоинта
+      // const res = await api.get(`/channels/${channelId}/messages`);
+      const historyMessages: Message[] = [];
 
-    // Fake history data
-    const historyMessages: Message[] = Array.from({ length: 5 }).map((_, i) => ({
-      id: `h_${Date.now()}_${i}`,
-      channelId,
-      authorId: 'system',
-      authorName: 'System',
-      content: `Старое сообщение ${i + 1} из истории...`,
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * (i + 1)).toISOString(),
-    }));
-
-    set((state) => ({
-      messages: {
-        ...state.messages,
-        [channelId]: [...historyMessages.reverse(), ...(state.messages[channelId] || [])]
-      },
-      isLoadingHistory: { ...state.isLoadingHistory, [channelId]: false }
-    }));
+      set((state) => ({
+        messages: {
+          ...state.messages,
+          [channelId]: [...historyMessages.reverse(), ...(state.messages[channelId] || [])]
+        },
+        isLoadingHistory: { ...state.isLoadingHistory, [channelId]: false }
+      }));
+    } catch (error) {
+      console.error(error);
+      set((state) => ({
+        isLoadingHistory: { ...state.isLoadingHistory, [channelId]: false }
+      }));
+    }
   }
 }));

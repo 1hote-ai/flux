@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { User, Server, Channel } from '../types';
 
 interface UIState {
   isSettingsOpen: boolean;
@@ -22,66 +23,24 @@ export const useUIStore = create<UIState>((set) => ({
   setChannelSidebarOpen: (open) => set({ isChannelSidebarOpen: open }),
 }));
 
-export interface User {
-  id: string;
-  name: string;
-  tag: string;
-  avatar?: string;
-  status: 'online' | 'idle' | 'dnd' | 'offline';
-  bio?: string;
-}
-
-interface Server {
-  id: string;
-  name: string;
-  icon?: string;
-}
-
-interface Channel {
-  id: string;
-  serverId: string;
-  name: string;
-  type: 'text' | 'voice';
-}
-
 interface AppDataState {
-  currentUser: User;
+  currentUser: User | null;
   servers: Server[];
   channels: Channel[];
   activeServerId: string | null;
   activeChannelId: string | null;
+  setCurrentUser: (user: User | null) => void;
   setActiveServer: (id: string | null) => void;
   setActiveChannel: (id: string | null) => void;
 }
 
-// Mock Data
-export const mockCurrentUser: User = {
-  id: 'u1',
-  name: 'Username',
-  tag: '#0001',
-  status: 'online',
-  bio: 'Люблю технологии и хорошее общение.',
-};
-
-export const mockServers: Server[] = [
-  { id: 's1', name: 'My Server', icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=MyServer' },
-  { id: 's2', name: 'Design Team', icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=Design' },
-];
-
-export const mockChannels: Channel[] = [
-  { id: 'c1', serverId: 's1', name: 'общий', type: 'text' },
-  { id: 'c2', serverId: 's1', name: 'команды', type: 'text' },
-  { id: 'c3', serverId: 's1', name: 'идеи', type: 'text' },
-  { id: 'c4', serverId: 's1', name: 'Общий', type: 'voice' },
-  { id: 'c5', serverId: 's1', name: 'Музыка', type: 'voice' },
-];
-
 export const useDataStore = create<AppDataState>((set) => ({
-  currentUser: mockCurrentUser,
-  servers: mockServers,
-  channels: mockChannels,
-  activeServerId: 's1',
-  activeChannelId: 'c1',
-  setActiveServer: (id) => set({ activeServerId: id, activeChannelId: null }), // reset channel on server change
+  currentUser: null,
+  servers: [],
+  channels: [],
+  activeServerId: null,
+  activeChannelId: null,
+  setCurrentUser: (user) => set({ currentUser: user }),
+  setActiveServer: (id) => set({ activeServerId: id, activeChannelId: null }),
   setActiveChannel: (id) => set({ activeChannelId: id }),
 }));

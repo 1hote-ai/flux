@@ -32,32 +32,6 @@ export default defineConfig({
 
   // ─── Production build optimizations ──────────────────────────────
   build: {
-    // Reduce chunk size for Tauri bundle
     target: 'es2022',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,     // Remove console.log in production
-        drop_debugger: true,    // Remove debugger statements
-        pure_funcs: ['console.info', 'console.debug', 'console.trace'],
-      },
-    },
-    rollupOptions: {
-      output: {
-        // Split vendor chunks for better caching
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'router': ['react-router-dom'],
-          'motion': ['framer-motion'],
-          'state': ['zustand'],
-        },
-      },
-    },
-    // Generate source maps only for dev
-    sourcemap: process.env.NODE_ENV !== 'production',
-    // Reduce CSS size
-    cssMinify: true,
-    // Chunk size warning threshold
-    chunkSizeWarningLimit: 500,
   },
 })

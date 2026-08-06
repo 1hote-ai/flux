@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './MessageCard.module.css';
-import type { Message } from '../../store/useChatStore';
+import type { Message } from '../../types';
 
 interface MessageCardProps {
   message: Message;
