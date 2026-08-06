@@ -20,8 +20,8 @@ export const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post('/auth/register', { email, username, password });
-      localStorage.setItem('flux_token', response.data.token);
+      await api.post('/auth/register', { email, username, password });
+      localStorage.setItem('is_logged_in', 'true');
       navigate('/channels/@me');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed');

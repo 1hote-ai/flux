@@ -10,6 +10,7 @@ interface ChatState {
   isLoadingHistory: Record<string, boolean>;
   socket: Socket | null;
   isConnected: boolean;
+  abortControllers: Record<string, AbortController>;
 
   initSocket: () => void;
   disconnectSocket: () => void;
@@ -31,15 +32,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
   socket: null,
   isConnected: false,
 
+  abortControllers: {},
+
   initSocket: () => {
     if (get().socket) return;
-    const token = localStorage.getItem('flux_token');
-    if (!token) return;
+    const isLoggedIn = localStorage.getItem('is_logged_in') === 'true';
+    if (!isLoggedIn) return;
 
     const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
     
     const socket = io(wsUrl, {
-      auth: { token },
+      withCredentials: true,
       transports: ['websocket'],
     });
 
@@ -119,13 +122,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
   loadHistory: async (channelId) => {
     if (get().isLoadingHistory[channelId]) return;
 
+    // Abort previous request for this channel if exists
+    const prevController = get().abortControllers[channelId];
+    if (prevController) {
+      prevController.abort();
+    }
+
+    const controller = new AbortController();
+    
     set((state) => ({
-      isLoadingHistory: { ...state.isLoadingHistory, [channelId]: true }
+      isLoadingHistory: { ...state.isLoadingHistory, [channelId]: true },
+      abortControllers: { ...state.abortControllers, [channelId]: controller }
     }));
 
     try {
       // Имитация до реализации API эндпоинта
-      // const res = await api.get(`/channels/${channelId}/messages`);
+      // const res = await api.get(`/channels/${channelId}/messages`, { signal: controller.signal });
       const historyMessages: Message[] = [];
 
       set((state) => ({
@@ -135,7 +147,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         },
         isLoadingHistory: { ...state.isLoadingHistory, [channelId]: false }
       }));
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'CanceledError' || error.message === 'canceled') return; // Ignore aborts
+      
       console.error(error);
       set((state) => ({
         isLoadingHistory: { ...state.isLoadingHistory, [channelId]: false }

@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io';
-import { prisma } from '../utils/prisma';
 import { authenticateSocket } from '../middlewares/socket.middleware';
+import { MessageService } from '../services/message.service';
+import { MessageSchema } from '../validators';
 
 export const setupChatSockets = (io: Server) => {
   io.use(authenticateSocket);
@@ -19,23 +20,18 @@ export const setupChatSockets = (io: Server) => {
       console.log(`[Socket] Пользователь ${userId} покинул канал ${channelId}`);
     });
 
-    socket.on('send_message', async (data: { channelId: string; content: string }) => {
+    socket.on('send_message', async (data: unknown) => {
       try {
-        const { channelId, content } = data;
+        const { channelId, content } = MessageSchema.parse(data);
 
-        const message = await prisma.message.create({
-          data: {
-            content,
-            channelId,
-            authorId: userId,
-          },
-          include: {
-            author: { select: { id: true, username: true, email: true } } 
-          }
-        });
+        const message = await MessageService.createMessage(content, channelId, userId);
 
         io.to(channelId).emit('receive_message', message);
-      } catch (error) {
+      } catch (error: any) {
+        if (error.name === 'ZodError') {
+          socket.emit('error', { message: error.errors[0].message });
+          return;
+        }
         console.error('[Socket] Ошибка при отправке сообщения:', error);
         socket.emit('error', { message: 'Не удалось отправить сообщение' });
       }

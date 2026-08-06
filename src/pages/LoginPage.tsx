@@ -19,8 +19,8 @@ export const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { email, password });
-      localStorage.setItem('flux_token', response.data.token);
+      await api.post('/auth/login', { email, password });
+      localStorage.setItem('is_logged_in', 'true');
       navigate('/channels/@me');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed');
