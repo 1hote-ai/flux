@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+src-tauri/flux_icon_source.jpg
+
+# Backend
+server/node_modules/
+server/dist/
+server/.env
+
+# Setup
+.flux-logs/

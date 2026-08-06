@@ -4,8 +4,7 @@ import { useModalStore } from '../../store/modalStore';
 import { useUserStore } from '../../store/userStore';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { Camera, Edit2 } from 'lucide-react';
-import classNames from 'classnames';
+import { Camera } from 'lucide-react';
 
 export const UserProfilePanel: React.FC = () => {
   const { closeModal } = useModalStore();

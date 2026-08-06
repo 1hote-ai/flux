@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import { motion, HTMLMotionProps } from 'framer-motion';
+import { motion, type HTMLMotionProps } from 'framer-motion';
 import styles from './IconButton.module.css';
 
 interface IconButtonProps extends HTMLMotionProps<'button'> {

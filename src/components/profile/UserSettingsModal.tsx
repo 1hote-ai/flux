@@ -5,8 +5,7 @@ import { useThemeStore } from '../../store/themeStore';
 import { useUserStore } from '../../store/userStore';
 import { Tabs } from '../ui/Tabs';
 import { Switch } from '../ui/Switch';
-import { Input } from '../ui/Input';
-import { Palette, Bell, Volume2, Moon, Sun, Monitor } from 'lucide-react';
+import { Palette, Bell, Volume2, Moon, Sun } from 'lucide-react';
 import classNames from 'classnames';
 
 export const UserSettingsModal: React.FC = () => {
