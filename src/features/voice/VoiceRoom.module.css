@@ -1,0 +1,82 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-primary);
+}
+
+.header {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--divider);
+  background-color: var(--bg-primary);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+}
+
+.actionBtn {
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.actionBtn:hover {
+  color: var(--text-primary);
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+}
+
+.gridContainer {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Grid Layouts */
+.grid1 {
+  grid-template-columns: 1fr;
+  max-width: 800px;
+}
+
+.grid2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid4 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.gridMany {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}

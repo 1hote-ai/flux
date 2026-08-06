@@ -1,0 +1,58 @@
+.card {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  min-height: 200px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.speaking {
+  border-color: var(--status-online);
+  box-shadow: 0 0 12px rgba(35, 165, 89, 0.3);
+}
+
+.avatarWrapper {
+  margin-bottom: 24px;
+}
+
+.userInfo {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 4px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.name {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.statusIcons {
+  display: flex;
+  gap: 4px;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--status-dnd);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+}

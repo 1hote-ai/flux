@@ -1,0 +1,51 @@
+.participantList {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 8px 8px 32px;
+  gap: 4px;
+}
+
+.participantItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.participantItem:hover {
+  background-color: var(--bg-modifier-hover);
+}
+
+.avatarContainer {
+  position: relative;
+  border-radius: 50%;
+  padding: 2px;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.speaking {
+  border-color: var(--status-online);
+  box-shadow: 0 0 8px rgba(35, 165, 89, 0.4);
+}
+
+.participantName {
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statusIcons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.mutedIcon, .deafenedIcon {
+  color: var(--status-dnd);
+}

@@ -1,0 +1,98 @@
+.voicePanel {
+  background-color: var(--bg-tertiary);
+  border-top: 1px solid var(--divider);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+  transition: all 0.2s ease-in-out;
+}
+
+.connectionInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+}
+
+.signalIcon {
+  color: var(--status-online);
+  animation: pulse 2s infinite;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.status {
+  color: var(--status-online);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.channelName {
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.controlBtn {
+  background-color: var(--bg-secondary);
+  flex: 1;
+  transition: all 0.2s;
+}
+
+.controlBtn:hover {
+  background-color: var(--bg-modifier-hover);
+}
+
+.offState {
+  color: var(--status-dnd);
+  position: relative;
+}
+
+.offState::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background-color: var(--status-dnd);
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+.activeState {
+  color: var(--status-online);
+  background-color: rgba(35, 165, 89, 0.1);
+}
+
+.disconnectBtn {
+  background-color: transparent;
+  color: var(--text-normal);
+}
+
+.disconnectBtn:hover {
+  color: var(--status-dnd);
+  background-color: rgba(242, 63, 67, 0.1);
+}
+
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
